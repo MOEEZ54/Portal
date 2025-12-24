@@ -1,0 +1,39 @@
+<div class="otp-card">
+  <div class="otp-head">
+    <div class="otp-title">WhatsApp OTP</div>
+    <div class="otp-sub">Verify your phone number</div>
+  </div>
+
+  <div class="otp-actions">
+    <button type="button"
+            class="otp-btn"
+            (click)="sendOtp()"
+            [disabled]="otpLoading || otpVerified">
+      {{ otpSent ? 'Resend OTP' : 'Send OTP' }}
+    </button>
+  </div>
+
+  <div *ngIf="otpSent && !otpVerified" class="otp-row">
+    <input type="text"
+           class="otp-input"
+           placeholder="Enter OTP"
+           maxlength="6"
+           [(ngModel)]="otp"
+           name="otp" />
+
+    <button type="button"
+            class="otp-btn"
+            (click)="verifyOtp()"
+            [disabled]="otpLoading">
+      Verify
+    </button>
+  </div>
+
+  <div *ngIf="otpVerified" class="otp-success">
+    ✔ OTP Verified
+  </div>
+
+  <div *ngIf="message" class="otp-msg">
+    {{ message }}
+  </div>
+</div>

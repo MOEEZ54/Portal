@@ -1,0 +1,47 @@
+.otp-wrapper {
+  max-width: 420px;
+  margin: 60px auto;
+  padding: 30px;
+  border-radius: 16px;
+  text-align: center;
+}
+
+.title {
+  font-size: 22px;
+  margin-bottom: 10px;
+}
+
+.subtitle {
+  font-size: 14px;
+  margin-bottom: 20px;
+  opacity: 0.8;
+}
+
+.otp-box {
+  margin-top: 15px;
+}
+
+input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 12px;
+  border-radius: 8px;
+  border: none;
+}
+
+.otp-btn {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+}
+
+.otp-btn.verify {
+  margin-top: 8px;
+}
+
+.error {
+  color: #ff6b6b;
+  margin-top: 10px;
+}

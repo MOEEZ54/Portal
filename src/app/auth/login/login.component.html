@@ -1,0 +1,101 @@
+<div class="container">
+
+  <!-- LEFT : IMAGE SLIDER -->
+  <div class="left-side">
+    <img class="slider-image" [src]="images[currentIndex]" alt="slider" />
+
+    <div class="overlay">
+      <h1 class="gradient-text">Welcome</h1>
+      <p class="glass-text">Sky Login Portal</p>
+    </div>
+  </div>
+
+  <!-- RIGHT : LOGIN -->
+  <div class="right-side">
+    <div class="login-box glass">
+
+      <!-- ROLE TABS -->
+      <div class="role-tabs">
+        <button type="button"
+          [class.active]="selectedRole === 'admin'"
+          (click)="selectRole('admin')">
+          Admin
+        </button>
+
+        <button type="button"
+          [class.active]="selectedRole === 'user'"
+          (click)="selectRole('user')">
+          User
+        </button>
+
+        <button type="button"
+          [class.active]="selectedRole === 'account'"
+          (click)="selectRole('account')">
+          Account
+        </button>
+      </div>
+
+      <h2 class="title">
+        {{ selectedRole | titlecase }} Login
+      </h2>
+
+      <p class="subtitle">Enter your credentials to continue</p>
+
+      <form #loginForm="ngForm" (ngSubmit)="login(loginForm)" novalidate>
+
+       
+        <div class="field">
+          <input
+            type="text"
+            placeholder="username"
+            [(ngModel)]="username"
+            name="username"
+            required
+            #u="ngModel"
+          />
+          <small class="error" *ngIf="u.invalid && (u.touched || !!loginForm.submitted)">
+            username is required
+          </small>
+        </div>
+
+        <div class="field">
+          <input
+            type="password"
+            placeholder="Password"
+            [(ngModel)]="password"
+            name="password"
+            required
+            minlength="4"
+            #p="ngModel"
+          />
+          <small class="error" *ngIf="p.errors?.['required'] && (p.touched || !!loginForm.submitted)">
+            Password is required
+          </small>
+          <small class="error" *ngIf="p.errors?.['minlength'] && (p.touched || !!loginForm.submitted)">
+            Password must be at least 4 characters
+          </small>
+        </div>
+
+        <button class="login-btn-animated" type="submit" [disabled]="isSubmitting">
+          <span>{{ isSubmitting ? 'Logging in...' : 'Login' }}</span>
+        </button>
+
+        <div *ngIf="errorMsg" class="error" style="margin-bottom:10px;">
+          {{ errorMsg }}
+        </div>
+
+      </form>
+
+      <!-- SIGNUP ONLY FOR USER -->
+      <div class="signup-section" *ngIf="selectedRole === 'user'">
+        <span class="signup-text">Don’t have an account?</span>
+
+        <button class="signup-btn" type="button" (click)="goToSignup()">
+          Create Account
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+</div>

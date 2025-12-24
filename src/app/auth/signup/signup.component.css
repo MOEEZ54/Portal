@@ -1,0 +1,516 @@
+/* =========================
+   PREMIUM LIGHT THEME
+   ========================= */
+
+:host{
+  display:block;
+  min-height:100vh;
+  padding:48px 20px;
+  background:
+    radial-gradient(900px 520px at 20% 12%, rgba(210, 220, 255, .55), transparent 55%),
+    radial-gradient(900px 520px at 85% 18%, rgba(190, 235, 255, .50), transparent 55%),
+    linear-gradient(180deg, #f4f6fb 0%, #eef1f7 100%);
+  color:#1b2333;
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+}
+
+/* ---------- Card ---------- */
+.signup-wrapper.glass{
+  width:min(1120px, 100%);
+  margin:0 auto;
+  padding:40px 36px 32px;
+  border-radius:26px;
+  background: rgba(255,255,255,.78);
+  border:1px solid rgba(20,30,60,.08);
+  box-shadow:
+    0 24px 60px rgba(18, 32, 80, .18),
+    inset 0 1px 0 rgba(255,255,255,.7);
+
+  position: relative; /* ✅ needed for profile card absolute positioning */
+}
+
+/* ---------- Title ---------- */
+.form-title{
+  margin-bottom:34px;
+  text-align:center;
+  font-weight:900;
+  letter-spacing:.16em;
+  font-size:clamp(20px, 2vw, 28px);
+  color:#1a2233;
+
+  /* ✅ avoid collision with profile card on desktop */
+  padding-right: 260px;
+}
+
+.form-title span{
+  padding:12px 18px;
+  border-radius:999px;
+  background: linear-gradient(90deg, #f8fafc, #eef2ff);
+  border:1px solid rgba(30,40,80,.10);
+  box-shadow: 0 14px 30px rgba(0,0,0,.10);
+}
+
+.form-title::after{
+  content:"";
+  display:block;
+  width:420px;
+  max-width:90%;
+  height:1px;
+  margin:22px auto 0;
+  background: linear-gradient(90deg,
+    transparent,
+    rgba(30,40,80,.18),
+    transparent
+  );
+}
+
+/* ---------- Layout ---------- */
+.form-row{
+  display:grid;
+  grid-template-columns: repeat(4, minmax(0,1fr));
+  gap:22px;
+  margin-bottom:28px;
+}
+
+.form-row.one{ grid-template-columns:1fr; }
+.form-row.two{ grid-template-columns: repeat(2, minmax(0,1fr)); }
+
+.form-group{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+.form-group.full{ grid-column:1 / -1; }
+
+/* ---------- Labels ---------- */
+label{
+  font-size:12px;
+  font-weight:700;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:#4b5568;
+}
+
+/* ---------- Inputs ---------- */
+input[type="text"],
+input[type="email"],
+input[type="date"],
+input[type="password"],
+select,
+textarea{
+  border-radius:18px;
+  padding:15px 16px;
+  font-size:15px;
+  background:#ffffff;
+  border:1px solid rgba(30,40,80,.14);
+  color:#1a2233;
+
+  box-shadow:
+    0 2px 0 rgba(255,255,255,.8),
+    0 8px 18px rgba(20,30,60,.08);
+
+  transition: border-color .15s ease,
+              box-shadow .18s ease,
+              transform .15s ease;
+}
+
+textarea{
+  min-height:120px;
+  resize:vertical;
+}
+
+input::placeholder,
+textarea::placeholder{
+  color:#9aa3b2;
+}
+
+/* Focus */
+input:focus,
+select:focus,
+textarea:focus{
+  outline:none;
+  border-color:#7c8cff;
+  transform: translateY(-1px);
+  box-shadow:
+    0 0 0 4px rgba(124,140,255,.18),
+    0 12px 26px rgba(20,30,60,.15);
+}
+
+/* ---------- Autofill FIX ---------- */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus{
+  -webkit-text-fill-color:#1a2233;
+  -webkit-box-shadow: 0 0 0 1000px #ffffff inset;
+  box-shadow: 0 0 0 1000px #ffffff inset;
+  transition: background-color 9999s ease-in-out 0s;
+}
+
+/* ---------- Select ---------- */
+select{
+  appearance:none;
+  padding-right:40px;
+  background-image:
+    linear-gradient(45deg, transparent 50%, #64748b 50%),
+    linear-gradient(135deg, #64748b 50%, transparent 50%);
+  background-position:
+    calc(100% - 18px) 50%,
+    calc(100% - 12px) 50%;
+  background-size: 6px 6px, 6px 6px;
+  background-repeat:no-repeat;
+}
+
+/* ---------- File Inputs ---------- */
+input[type="file"]{
+  padding:14px 16px;
+  border-radius:18px;
+  background:#fafbff;
+  border:1px dashed rgba(30,40,80,.25);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.8);
+}
+
+input[type="file"]::file-selector-button{
+  margin-right:12px;
+  padding:10px 14px;
+  border-radius:14px;
+  border:0;
+  cursor:pointer;
+  font-weight:800;
+  letter-spacing:.05em;
+  background: linear-gradient(90deg, #7c8cff, #63b3ff);
+  color:white;
+  box-shadow: 0 10px 22px rgba(20,30,60,.18);
+}
+
+/* ---------- Errors ---------- */
+.error{
+  margin-top:6px;
+  font-size:12px;
+  font-weight:700;
+  color:#dc2626;
+}
+
+form.ng-submitted input.ng-invalid,
+form.ng-submitted select.ng-invalid,
+form.ng-submitted textarea.ng-invalid,
+input.ng-invalid.ng-touched,
+select.ng-invalid.ng-touched,
+textarea.ng-invalid.ng-touched{
+  border-color:#dc2626 !important;
+  box-shadow: 0 0 0 4px rgba(220,38,38,.12) !important;
+}
+
+/* ---------- Terms ---------- */
+.terms{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  margin:26px 0 14px;
+  padding:16px 18px;
+  border-radius:18px;
+  background:#f8faff;
+  border:1px solid rgba(30,40,80,.10);
+}
+
+/* =========================
+   PROFILE AVATAR (PREMIUM)
+   ========================= */
+/* =========================
+   PROFILE AVATAR (BIGGER + PREMIUM)
+   ========================= */
+
+   /* ===== Profile Title – Premium Look ===== */
+.profile-title{
+  font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+  font-size: 15px;
+  font-weight: 900;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #0f172a;
+
+  /* subtle luxury depth */
+  text-shadow: 0 2px 6px rgba(15, 23, 42, 0.12);
+}
+
+/* ===== Profile Subtitle – Soft & Elegant ===== */
+.profile-subtitle{
+  margin-top: 10px;
+  font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: #64748b;
+
+  /* refined look */
+  opacity: 0.95;
+}
+
+.profile-card{
+  position:absolute;
+  top:22px;
+  right:20px;
+
+  display:flex;
+  align-items:center;
+  gap:18px;
+
+  padding:30px 25px;
+  border-radius:26px;
+
+  background: rgba(255,255,255,.92);
+  border:1px solid rgba(20,30,60,.10);
+
+  box-shadow:
+    0 22px 55px rgba(18, 32, 80, .16),
+    inset 0 1px 0 rgba(255,255,255,.85);
+
+  backdrop-filter: blur(12px);
+  z-index: 10;
+
+  min-width: 340px;   /* ✅ makes it feel premium */
+}
+
+/* Bigger circle */
+.avatar{
+  width:132px;          /* ✅ BIG */
+  height:132px;
+  border-radius:999px;
+  position:relative;
+  overflow:hidden;
+  cursor:pointer;
+  user-select:none;
+  flex:0 0 auto;
+
+  /* Premium ring */
+  background: linear-gradient(180deg, #ffffff, #f7f9ff);
+  border: 2px solid rgba(124,140,255,.35);
+
+  box-shadow:
+    0 18px 38px rgba(20,30,60,.18),
+    inset 0 2px 0 rgba(255,255,255,.95);
+
+  transition: transform .15s ease, box-shadow .18s ease, border-color .18s ease;
+}
+
+.avatar:hover{
+  transform: translateY(-2px);
+  border-color: rgba(124,140,255,.70);
+  box-shadow:
+    0 26px 56px rgba(20,30,60,.22),
+    0 0 0 8px rgba(124,140,255,.14);
+}
+
+.avatar:active{
+  transform: translateY(-1px) scale(.99);
+}
+
+/* Preview image fills circle */
+.avatar__img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+}
+/* ✅ adds space below the top-right profile card */
+.signup-wrapper.glass form{
+  padding-top: 100px; /* adjust 170-220 depending on your avatar size */
+}
+
+
+/* Placeholder */
+.avatar__placeholder{
+  width:100%;
+  height:100%;
+  display:grid;
+  place-items:center;
+  text-align:center;
+  padding:14px;
+  color:#51607a;
+}
+
+.avatar__icon{
+  font-size:34px;   /* ✅ bigger icon */
+  line-height:1;
+}
+
+.avatar__hint{
+  margin-top:8px;
+  font-size:12px;
+  font-weight:900;
+  letter-spacing:.10em;
+  text-transform:uppercase;
+  opacity:.85;
+}
+
+/* Hover overlay */
+.avatar__overlay{
+  position:absolute;
+  inset:0;
+  display:grid;
+  place-items:center;
+  background: rgba(16, 24, 40, .46);
+  opacity:0;
+  transition: opacity .18s ease;
+}
+
+.avatar:hover .avatar__overlay{
+  opacity:1;
+}
+
+.avatar__overlayText{
+  color:#fff;
+  font-size:12px;
+  font-weight:900;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+
+  padding:10px 14px;
+  border-radius:999px;
+
+  background: rgba(255,255,255,.18);
+  border:1px solid rgba(255,255,255,.30);
+  box-shadow: 0 14px 30px rgba(0,0,0,.20);
+}
+
+/* Text block */
+.profile-meta{
+  min-width: 170px;
+  line-height:1.2;
+}
+
+.profile-title{
+  font-size:13px;
+  font-weight:900;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:#1a2233;
+}
+
+.profile-subtitle{
+  margin-top:8px;
+  font-size:13px;
+  font-weight:800;
+  color:#667085;
+}
+
+
+/* ---------- Button ---------- */
+.submit-btn{
+  margin-top:16px;
+  padding:18px;
+  border-radius:20px;
+  border:0;
+  width:100%;
+  font-weight:900;
+  letter-spacing:.18em;
+  font-size:14px;
+  cursor:pointer;
+  color:white;
+  background: linear-gradient(90deg, #7c8cff, #63b3ff);
+  box-shadow: 0 18px 36px rgba(20,30,60,.22);
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+
+.submit-btn:hover{
+  transform: translateY(-2px);
+  box-shadow: 0 22px 44px rgba(20,30,60,.28);
+}
+
+/* ---------- Footer ---------- */
+.login-link{
+  margin-top:18px;
+  text-align:center;
+  font-size:14px;
+  color:#4b5568;
+}
+
+.login-link a{
+  color:#7c8cff;
+  font-weight:800;
+  text-decoration:none;
+}
+
+.login-link a:hover{ text-decoration:underline; }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 980px){
+  .form-row{ grid-template-columns: repeat(2, 1fr); }
+  .form-row.two{ grid-template-columns:1fr; }
+}
+
+@media (max-width: 720px){
+  .form-title{
+    padding-right: 0; /* no need on mobile */
+  }
+
+  .profile-card{
+    position: static;
+    width: 100%;
+    margin: 0 0 18px 0;
+    justify-content: space-between;
+  }
+}
+
+@media (max-width: 560px){
+  :host{ padding:30px 14px; }
+  .signup-wrapper.glass{ padding:26px 18px; }
+  .form-row{ grid-template-columns:1fr; gap:18px; }
+}
+@media (min-width: 721px){
+  .signup-wrapper.glass form{
+    padding-top: 100px;
+  }
+}
+/* ⭐ SPACE between avatar & form */
+@media (min-width: 721px){
+  .signup-wrapper.glass form{
+    padding-top: 190px;
+  }
+}
+
+/* ⭐ prevent overlay blocking click */
+.avatar__overlay,
+.avatar__overlayText{
+  pointer-events: none;
+}
+
+/* ⭐ beautiful avatar ring + animation */
+.avatar{
+  background:
+    linear-gradient(#fff,#f7f9ff) padding-box,
+    conic-gradient(#7c8cff,#63b3ff,#7c8cff) border-box;
+  border:2px solid transparent;
+  box-shadow:
+    0 18px 38px rgba(20,30,60,.25),
+    0 0 0 10px rgba(124,140,255,.15);
+  transition: transform .18s ease, box-shadow .22s ease;
+}
+
+.avatar:hover{
+  transform: translateY(-3px) scale(1.03);
+  box-shadow:
+    0 28px 70px rgba(20,30,60,.35),
+    0 0 0 14px rgba(124,140,255,.22);
+}
+
+/* ⭐ gentle pulse when no image */
+.avatar__placeholder{
+  animation: softPulse 2.2s ease-in-out infinite;
+}
+
+@keyframes softPulse{
+  0%,100%{ transform:scale(1); opacity:.9; }
+  50%{ transform:scale(1.05); opacity:1; }
+}
+
+/* ================================
+   REDUCE SPACE BELOW PROFILE CARD
+   ================================ */
+
+/* Form ke upar jo extra padding hai usay kam karo */
+@media (min-width: 721px){
+  .signup-wrapper.glass form{
+    padding-top: 120px;   /* pehle ~190px tha */
+  }
+}

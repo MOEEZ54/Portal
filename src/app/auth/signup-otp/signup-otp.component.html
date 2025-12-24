@@ -1,0 +1,38 @@
+<div class="otp-wrapper glass">
+
+  <h2 class="title">OTP Verification</h2>
+
+  <p class="subtitle">
+    We will send an OTP to
+    <strong>{{ phoneE164 }}</strong>
+  </p>
+
+  <!-- 🔐 Firebase requires this -->
+  <div id="recaptcha-container"></div>
+
+  <button
+    class="otp-btn"
+    (click)="sendOtp()"
+    [disabled]="sending || otpSent">
+    {{ sending ? 'Sending OTP...' : (otpSent ? 'OTP Sent' : 'Send OTP') }}
+  </button>
+
+  <div *ngIf="otpSent" class="otp-box">
+    <input
+      type="text"
+      placeholder="Enter 6-digit OTP"
+      [(ngModel)]="otp"
+      maxlength="6"
+    />
+
+    <button
+      class="otp-btn verify"
+      (click)="verifyOtp()"
+      [disabled]="verifying">
+      {{ verifying ? 'Verifying...' : 'Verify OTP' }}
+    </button>
+  </div>
+
+  <p class="error" *ngIf="errorMsg">{{ errorMsg }}</p>
+
+</div>
