@@ -43,7 +43,6 @@
 
       <form #loginForm="ngForm" (ngSubmit)="login(loginForm)" novalidate>
 
-       
         <div class="field">
           <input
             type="text"
@@ -53,8 +52,8 @@
             required
             #u="ngModel"
           />
-          <small class="error" *ngIf="u.invalid && (u.touched || !!loginForm.submitted)">
-            username is required
+          <small class="error" *ngIf="u.invalid && (u.touched || loginForm.submitted)">
+            Username is required
           </small>
         </div>
 
@@ -68,10 +67,10 @@
             minlength="4"
             #p="ngModel"
           />
-          <small class="error" *ngIf="p.errors?.['required'] && (p.touched || !!loginForm.submitted)">
+          <small class="error" *ngIf="p.errors?.['required'] && (p.touched || loginForm.submitted)">
             Password is required
           </small>
-          <small class="error" *ngIf="p.errors?.['minlength'] && (p.touched || !!loginForm.submitted)">
+          <small class="error" *ngIf="p.errors?.['minlength'] && (p.touched || loginForm.submitted)">
             Password must be at least 4 characters
           </small>
         </div>
@@ -80,8 +79,19 @@
           <span>{{ isSubmitting ? 'Logging in...' : 'Login' }}</span>
         </button>
 
+        <!-- Error (only once) -->
         <div *ngIf="errorMsg" class="error" style="margin-bottom:10px;">
           {{ errorMsg }}
+        </div>
+
+        <!-- ✅ Forgot Password BUTTON (only after wrong login) -->
+        <div *ngIf="showForgotPassword" class="forgot-wrapper">
+          <button
+            type="button"
+            class="forgot-btn"
+            (click)="goToForgotPassword()">
+            Forgot Password?
+          </button>
         </div>
 
       </form>

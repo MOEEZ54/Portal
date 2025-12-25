@@ -4,6 +4,8 @@ import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
 import { delay, tap } from 'rxjs/operators';
 import { ApiService } from './api.service';
 import { SignupModel } from '../models/signup.model';
+import { catchError} from 'rxjs/operators';
+
 
 export type UserRole = 'admin' | 'user' | 'account';
 
@@ -147,6 +149,15 @@ export class AuthService {
     );
   }
 
+
+  verifyResetOtp(email: string, otp: string) {
+  const url = this.api.url('skymembers/verify-reset-otp');
+  return this.http.post<any>(url, {
+    Email: (email || '').trim(),
+    Otp: (otp || '').trim()
+  });
+}
+
   // ---------- SIGNUP SKY MEMBER ----------
   signupMember(
     data: SignupModel,
@@ -235,8 +246,27 @@ export class AuthService {
     })
   );
 }
+ // Email otp 
 
 
+
+verifyEmailOtp(email: string, otp: string) {
+  const url = this.api.url('skymembers/verify-email');
+
+  const body = {
+    Email: (email || '').trim(),
+    Otp: (otp || '').trim()
+  };
+
+  console.log('[verifyEmailOtp] POST', url, JSON.stringify(body));
+  return this.http.post<any>(url, body);
+}
+
+
+// OPTIONAL - sirf tab jab backend me endpoint ho
+resendEmailOtp(email: string) {
+  return this.http.post<any>(this.api.url('skymembers/resend-email-otp'), { email });
+}
 
   // ---------- storage ----------
   private readStoredState(): StoredAuthState | null {
@@ -255,4 +285,20 @@ export class AuthService {
   private writeStoredState(state: StoredAuthState): void {
     localStorage.setItem(AUTH_KEY, JSON.stringify(state));
   }
+
+
+  forgotPassword(email: string) {
+  const url = this.api.url('skymembers/forgot-password');
+  return this.http.post<any>(url, { Email: (email || '').trim() });
+}
+
+resetPassword(email: string, otp: string, newPassword: string) {
+  const url = this.api.url('skymembers/reset-password');
+  return this.http.post<any>(url, {
+    Email: (email || '').trim(),
+    Otp: (otp || '').trim(),
+    NewPassword: newPassword
+  });
+}
+
 }

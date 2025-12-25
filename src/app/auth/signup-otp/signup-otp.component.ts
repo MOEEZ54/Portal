@@ -1,88 +1,76 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
-import { FirebaseOtpService } from '../../services/firebase-otp.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
-  selector: 'app-signup-otp',
+  selector: 'app-otp',
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './signup-otp.component.html',
   styleUrls: ['./signup-otp.component.css']
 })
-export class SignupOtpComponent implements OnInit {
-  phoneE164 = '';
-  otp = '';
+export class OtpComponent implements OnInit {
 
-  otpSent = false;
-  sending = false;
-  verifying = false;
+  email: string = '';
+  otp: string = '';
+
+  isSubmitting = false;
   errorMsg = '';
+  successMsg = '';
 
-  constructor(
-    private router: Router,
-    private fbOtp: FirebaseOtpService
-  ) {}
+  constructor(private auth: AuthService, private router: Router) {}
 
   ngOnInit(): void {
-    // ✅ Read from localStorage (reliable)
-    const phone = localStorage.getItem('otp_phone');
+    this.email = (localStorage.getItem('otp_email') || '').trim();
+    console.log('[OtpComponent] email:', this.email);
 
-    if (!phone) {
-      // If user opened OTP page directly
-      this.router.navigate(['/signup']);
+    if (!this.email) {
+      this.errorMsg = 'Email not found. Please signup again.';
+    }
+  }
+
+  verifyOtp(form: NgForm) {
+    console.log('VERIFY OTP CLICKED', { email: this.email, otp: this.otp, valid: form.valid });
+
+    this.errorMsg = '';
+    this.successMsg = '';
+
+    if (this.isSubmitting) return;
+
+    if (!this.email) {
+      this.errorMsg = 'Email not found. Please signup again.';
       return;
     }
 
-    this.phoneE164 = this.toE164(phone);
+    this.otp = (this.otp || '').replace(/\D/g, '').slice(0, 6);
 
-    // Firebase reCAPTCHA required
-    this.fbOtp.initRecaptcha('recaptcha-container');
-  }
-
-  private toE164(phone: string): string {
-    const p = phone.trim();
-    if (p.startsWith('+92')) return p;
-    if (p.startsWith('03')) return '+92' + p.substring(1);
-    return p; // if already in correct format
-  }
-
-  async sendOtp() {
-    try {
-      this.errorMsg = '';
-      this.sending = true;
-
-      await this.fbOtp.sendOtp(this.phoneE164);
-      this.otpSent = true;
-      alert('OTP sent!');
-    } catch (e: any) {
-      console.error(e);
-      this.errorMsg = e?.message || 'Failed to send OTP';
-    } finally {
-      this.sending = false;
+    if (form.invalid || this.otp.length !== 6) {
+      this.errorMsg = 'Please enter valid 6 digit OTP.';
+      return;
     }
-  }
 
-  async verifyOtp() {
-    try {
-      this.errorMsg = '';
-      this.verifying = true;
+    this.isSubmitting = true;
 
-      await this.fbOtp.verifyOtp(this.otp);
+    this.auth.verifyEmailOtp(this.email, this.otp).subscribe({
+      next: () => {
+        this.isSubmitting = false;
+        this.successMsg = 'Email verified successfully!';
+        localStorage.removeItem('otp_email');
 
-      alert('OTP verified successfully!');
+        setTimeout(() => this.router.navigate(['/login']), 800);
+      },
+      error: (err) => {
+        this.isSubmitting = false;
+        console.error('OTP verify error:', err);
 
-      // ✅ clear stored phone
-      localStorage.removeItem('otp_phone');
-
-      // Redirect to login
-      this.router.navigate(['/login']);
-    } catch (e: any) {
-      console.error(e);
-      this.errorMsg = 'Invalid or expired OTP';
-    } finally {
-      this.verifying = false;
-    }
+        this.errorMsg =
+          err?.error?.message ||
+          (typeof err?.error === 'string' ? err.error : '') ||
+          JSON.stringify(err?.error) ||
+          'Invalid OTP';
+      }
+    });
   }
 }

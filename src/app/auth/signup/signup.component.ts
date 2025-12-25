@@ -63,6 +63,7 @@ export class SignupComponent {
     const file: File | undefined = event.target.files?.[0];
     if (!file) return;
 
+    // 5MB limit
     if (file.size > 5 * 1024 * 1024) {
       alert('File size must be less than 5MB');
       event.target.value = '';
@@ -85,11 +86,13 @@ export class SignupComponent {
       case 'profilePicture':
         this.profilePictureFile = file;
 
+        // preview cleanup
         if (this.profilePreviewUrl) {
           URL.revokeObjectURL(this.profilePreviewUrl);
         }
         this.profilePreviewUrl = URL.createObjectURL(file);
 
+        // optional: clear input so same file can be re-selected
         event.target.value = '';
         break;
     }
@@ -103,6 +106,7 @@ export class SignupComponent {
   submitSignup(form: NgForm) {
     console.log('SUBMIT CLICKED');
 
+    // touch all controls so validation shows
     Object.values(form.controls).forEach(c => c.markAsTouched());
 
     if (!this.otpVerified) {
@@ -136,15 +140,21 @@ export class SignupComponent {
     this.auth.signupMember(this.signupData, files).subscribe({
       next: (res: any) => {
         this.isSubmitting = false;
+
+        // ✅ IMPORTANT: OTP page reads otp_email, so store it here
+        localStorage.setItem('otp_email', this.signupData.email);
+
+        // ✅ Optional: store phone too if you need phone OTP later
+        const phoneToVerify = this.signupData.phone || this.signupData.primaryWhatsApp;
+        if (phoneToVerify) {
+          localStorage.setItem('otp_phone', phoneToVerify);
+        }
+
         alert('Signup submitted successfully!');
 
-        // ✅ Store phone for OTP page (reliable even on refresh)
-        const phoneToVerify = this.signupData.phone || this.signupData.primaryWhatsApp;
-        localStorage.setItem('otp_phone', phoneToVerify);
-
-        // ✅ Navigate FIRST (so routing never gets blocked)
+        // ✅ Navigate to OTP page first
         this.router.navigate(['/signupotp']).then(() => {
-          // ✅ Then open PDF (optional) - safer
+          // ✅ Then open PDF if backend returns path
           const apiBase = 'https://localhost:7213';
           if (res?.detailsPdfPath) {
             window.open(apiBase + res.detailsPdfPath, '_blank');

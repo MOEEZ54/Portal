@@ -6,7 +6,9 @@ import { AdminDashboardComponent } from './dashboards/admin-dashboard/admin-dash
 import { UserDashboardComponent } from './dashboards/user-dashboard/user-dashboard.component';
 import { AccountDashboardComponent } from './dashboards/account-dashboard/account-dashboard.component';
 import { SignupComponent } from './auth/signup/signup.component';
-import { SignupOtpComponent } from './auth/signup-otp/signup-otp.component';
+import { OtpComponent } from './auth/signup-otp/signup-otp.component';
+import { ForgotPasswordComponent } from './auth/forget-password/forget-password.component';
+
 
 export const routes: Routes = [
 
@@ -16,7 +18,8 @@ export const routes: Routes = [
   // Login
   { path: 'login', component: LoginComponent },
   { path: 'signup', component: SignupComponent },
-  {path:'signupotp', component:SignupOtpComponent},
+  {path:'signupotp', component:OtpComponent},
+  { path: 'forgot-password', component: ForgotPasswordComponent },
 
   // Portal wrapper
   {

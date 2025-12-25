@@ -1,38 +1,35 @@
-<div class="otp-wrapper glass">
+<div class="otp-container">
+  <h2>Verify Email</h2>
+  <p>OTP aapki email par send ho chuka hai</p>
 
-  <h2 class="title">OTP Verification</h2>
+  <form #otpForm="ngForm" (ngSubmit)="verifyOtp(otpForm)" novalidate>
 
-  <p class="subtitle">
-    We will send an OTP to
-    <strong>{{ phoneE164 }}</strong>
-  </p>
+    <div class="field">
+      <label>Email</label>
+      <input type="text" [value]="email" readonly />
+    </div>
 
-  <!-- 🔐 Firebase requires this -->
-  <div id="recaptcha-container"></div>
+    <div class="field">
+      <label>OTP</label>
+      <input
+        type="text"
+        name="otp"
+        [(ngModel)]="otp"
+        required
+        minlength="6"
+        maxlength="6"
+        pattern="^[0-9]{6}$"
+        inputmode="numeric"
+        placeholder="Enter 6 digit OTP"
+      />
+    </div>
 
-  <button
-    class="otp-btn"
-    (click)="sendOtp()"
-    [disabled]="sending || otpSent">
-    {{ sending ? 'Sending OTP...' : (otpSent ? 'OTP Sent' : 'Send OTP') }}
-  </button>
-
-  <div *ngIf="otpSent" class="otp-box">
-    <input
-      type="text"
-      placeholder="Enter 6-digit OTP"
-      [(ngModel)]="otp"
-      maxlength="6"
-    />
-
-    <button
-      class="otp-btn verify"
-      (click)="verifyOtp()"
-      [disabled]="verifying">
-      {{ verifying ? 'Verifying...' : 'Verify OTP' }}
+    <button type="submit" [disabled]="isSubmitting">
+      {{ isSubmitting ? 'Verifying...' : 'Verify OTP' }}
     </button>
-  </div>
 
-  <p class="error" *ngIf="errorMsg">{{ errorMsg }}</p>
+    <p class="error" *ngIf="errorMsg">{{ errorMsg }}</p>
+    <p class="success" *ngIf="successMsg">{{ successMsg }}</p>
 
+  </form>
 </div>

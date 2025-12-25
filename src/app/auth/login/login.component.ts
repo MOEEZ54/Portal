@@ -26,7 +26,9 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   selectedRole: 'admin' | 'user' | 'account' = 'user';
 
-  // Username + Password
+  // ✅ show only after wrong password
+  showForgotPassword = false;
+
   username = '';
   password = '';
 
@@ -50,15 +52,23 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   selectRole(role: 'admin' | 'user' | 'account'): void {
     this.selectedRole = role;
+    // optional: role change pe reset UI
+    this.errorMsg = '';
+    this.showForgotPassword = false;
   }
 
   goToSignup(): void {
     this.router.navigate(['/signup']);
   }
 
-  // ✅ MAIN LOGIN METHOD (USERNAME + PASSWORD)
+  goToForgotPassword(): void {
+    this.router.navigate(['/forgot-password']);
+  }
+
+  // ✅ MAIN LOGIN METHOD
   login(form: NgForm): void {
     this.errorMsg = '';
+    this.showForgotPassword = false;
 
     if (form.invalid) return;
 
@@ -72,17 +82,17 @@ export class LoginComponent implements OnInit, OnDestroy {
       this.errorMsg = 'Username is required';
       return;
     }
+
     if (!password) {
-    this.isSubmitting = false;
-    this.errorMsg = 'Password is required';
-    return;
-  }
+      this.isSubmitting = false;
+      this.errorMsg = 'Password is required';
+      return;
+    }
 
     this.auth.login(username, password).subscribe({
       next: (res: any) => {
         this.isSubmitting = false;
 
-        // accept both token names
         const token = res?.token ?? res?.accessToken;
 
         if (!token) {
@@ -100,18 +110,22 @@ export class LoginComponent implements OnInit, OnDestroy {
           this.router.navigate(['/portal/account-dashboard']);
         }
       },
+
       error: (err) => {
         this.isSubmitting = false;
 
-        // show backend message if available
-        this.errorMsg = err?.error?.message || err?.message || 'Invalid Username or Password';
+        this.errorMsg =
+          err?.error?.message ||
+          err?.message ||
+          'Invalid Username or Password';
 
-        // helpful debug
-        console.error('[Login] error', {
-          status: err?.status,
-          statusText: err?.statusText,
-          body: err?.error
-        });
+        // ✅ WRONG PASSWORD / UNAUTHORIZED → show forgot password button
+        const msg = (err?.error?.message || '').toLowerCase();
+        if (err?.status === 401 || msg.includes('password')) {
+          this.showForgotPassword = true;
+        }
+
+        console.error('[Login Error]', err);
       }
     });
   }
