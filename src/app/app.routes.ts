@@ -8,7 +8,8 @@ import { AccountDashboardComponent } from './dashboards/account-dashboard/accoun
 import { SignupComponent } from './auth/signup/signup.component';
 import { OtpComponent } from './auth/signup-otp/signup-otp.component';
 import { ForgotPasswordComponent } from './auth/forget-password/forget-password.component';
-
+import { authGuard } from './guards/auth.guard';
+import { roleGuard } from './guards/role.guard';
 
 export const routes: Routes = [
 
@@ -24,12 +25,13 @@ export const routes: Routes = [
   // Portal wrapper
   {
     path: 'portal',
+     canActivate: [authGuard],
     component: PortalComponent,
     children: [
       { path: '', redirectTo: 'user-dashboard', pathMatch: 'full' },
-      { path: 'admin-dashboard', component: AdminDashboardComponent },
-      { path: 'user-dashboard', component: UserDashboardComponent },
-      { path: 'account-dashboard', component: AccountDashboardComponent },
+      { path: 'admin-dashboard', component: AdminDashboardComponent , canActivate: [roleGuard(['admin'])] },
+      { path: 'user-dashboard', component: UserDashboardComponent, canActivate: [roleGuard(['user','admin','account'])]  },
+      { path: 'account-dashboard', component: AccountDashboardComponent, canActivate: [roleGuard(['account', 'admin'])]  },
      
       
     ]

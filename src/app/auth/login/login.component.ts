@@ -4,6 +4,8 @@ import { FormsModule, NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 
+type Role = 'admin' | 'user' | 'account';
+
 @Component({
   selector: 'app-login',
   standalone: true,
@@ -24,9 +26,9 @@ export class LoginComponent implements OnInit, OnDestroy {
   currentIndex = 0;
   private sliderInterval?: number;
 
-  selectedRole: 'admin' | 'user' | 'account' = 'user';
+  // ✅ (optional) UI me dikhana ho to rakho, but navigation is se nahi hogi
+  selectedRole: Role = 'user';
 
-  // ✅ show only after wrong password
   showForgotPassword = false;
 
   username = '';
@@ -50,9 +52,8 @@ export class LoginComponent implements OnInit, OnDestroy {
     if (this.sliderInterval) clearInterval(this.sliderInterval);
   }
 
-  selectRole(role: 'admin' | 'user' | 'account'): void {
+  selectRole(role: Role): void {
     this.selectedRole = role;
-    // optional: role change pe reset UI
     this.errorMsg = '';
     this.showForgotPassword = false;
   }
@@ -93,21 +94,22 @@ export class LoginComponent implements OnInit, OnDestroy {
       next: (res: any) => {
         this.isSubmitting = false;
 
+        // ✅ token already saved in AuthService, but safe:
         const token = res?.token ?? res?.accessToken;
-
         if (!token) {
           this.errorMsg = 'Invalid Username or Password';
           return;
         }
 
-        localStorage.setItem('token', token);
+        // ✅ ROLE FROM BACKEND (NOT selectedRole)
+        const role = (res?.role || localStorage.getItem('role') || 'user').toLowerCase();
 
-        if (this.selectedRole === 'admin') {
+        if (role === 'admin') {
           this.router.navigate(['/portal/admin-dashboard']);
-        } else if (this.selectedRole === 'user') {
-          this.router.navigate(['/portal/user-dashboard']);
-        } else {
+        } else if (role === 'account') {
           this.router.navigate(['/portal/account-dashboard']);
+        } else {
+          this.router.navigate(['/portal/user-dashboard']);
         }
       },
 
@@ -119,7 +121,6 @@ export class LoginComponent implements OnInit, OnDestroy {
           err?.message ||
           'Invalid Username or Password';
 
-        // ✅ WRONG PASSWORD / UNAUTHORIZED → show forgot password button
         const msg = (err?.error?.message || '').toLowerCase();
         if (err?.status === 401 || msg.includes('password')) {
           this.showForgotPassword = true;

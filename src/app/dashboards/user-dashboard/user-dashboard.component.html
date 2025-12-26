@@ -1,1 +1,542 @@
-<p>user-dashboard works!</p>
+<!-- dashboards/user-dashboard/user-dashboard.component.html -->
+<div class="dashboard-container">
+
+  <!-- Loading -->
+  <div *ngIf="isLoading" class="loading-spinner">
+    <div class="loader"></div>
+    <p>Loading...</p>
+  </div>
+
+  <!-- Header -->
+  <div class="dashboard-header" *ngIf="!isLoading">
+
+    <div class="header-shell">
+      <div class="header-left">
+        <div class="title-wrap">
+          <div class="title-badge">
+            <i class="fas fa-sparkles"></i>
+            Member Area
+          </div>
+          <h1 class="dashboard-title">Member Dashboard</h1>
+        </div>
+
+        <p class="dashboard-subtitle">
+          Welcome back, <strong>{{ memberName }}</strong>
+        </p>
+
+        <div class="meta-row">
+          <div class="meta-pill">
+            <i class="fas fa-id-card"></i>
+            <span>CNIC: {{ memberCNIC }}</span>
+          </div>
+          <div class="meta-pill soft">
+            <i class="fas fa-shield-alt"></i>
+            <span>Secure Access</span>
+          </div>
+        </div>
+
+        <!-- Profile/KYC status -->
+        <div class="meta-row" *ngIf="profileStatus">
+          <div class="meta-pill" [class.soft]="profileStatus.kyc === 'pending'">
+            <i class="fas fa-user-check"></i>
+            <span>KYC: {{ profileStatus.kyc }}</span>
+          </div>
+          <div class="meta-pill">
+            <i class="fas fa-percentage"></i>
+            <span>Profile: {{ profileStatus.completion }}%</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="header-actions-wrapper">
+        <div class="header-actions">
+          <button class="btn btn-primary" (click)="refreshDashboard()">
+            <i class="fas fa-sync-alt"></i>
+            Refresh
+          </button>
+
+          <button class="btn btn-dark" (click)="downloadStatement()">
+            <i class="fas fa-file-pdf"></i>
+            Statement
+          </button>
+
+          <button class="btn btn-accent" (click)="exportToExcel()">
+            <i class="fas fa-file-excel"></i>
+            Export
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filters">
+      <div class="field">
+        <label for="propertyFilter" class="form-label">Property</label>
+        <select
+          id="propertyFilter"
+          class="input"
+          [(ngModel)]="selectedPropertyId"
+          (change)="filterByProperty()"
+        >
+          <option value="all">All Properties</option>
+          <option *ngFor="let property of properties" [value]="property.id">
+            {{ property.name }} — {{ property.plotNo }}
+          </option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label class="form-label">Date Range</label>
+        <div class="date-range">
+          <div class="date-field">
+            <i class="fas fa-calendar-alt"></i>
+            <input type="date" class="input input-date" [(ngModel)]="dateRange.start" />
+          </div>
+
+          <span class="chip">to</span>
+
+          <div class="date-field">
+            <i class="fas fa-calendar-alt"></i>
+            <input type="date" class="input input-date" [(ngModel)]="dateRange.end" />
+          </div>
+        </div>
+      </div>
+
+      <div class="field apply-field">
+        <button class="btn btn-sand w-100" (click)="loadDashboardData()">
+          <i class="fas fa-filter"></i>
+          Apply Filter
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Property Snapshot -->
+  <div class="grid snapshot-grid" *ngIf="!isLoading && selectedProperty">
+    <div class="card">
+      <div class="card-header header-row">
+        <div class="card-title">
+          <i class="fas fa-home"></i> Property Snapshot
+        </div>
+        <span class="pill">{{ selectedProperty.name }}</span>
+      </div>
+
+      <div class="card-body">
+        <div class="kv-grid">
+          <div class="kv">
+            <div class="k">Plot No</div>
+            <div class="v">{{ selectedProperty.plotNo }}</div>
+          </div>
+          <div class="kv">
+            <div class="k">Block/Sector</div>
+            <div class="v">{{ selectedProperty.block || '—' }}</div>
+          </div>
+          <div class="kv">
+            <div class="k">Size</div>
+            <div class="v">{{ selectedProperty.size || '—' }}</div>
+          </div>
+          <div class="kv">
+            <div class="k">Status</div>
+            <div class="v">
+              <span class="status"
+                    [class.ok]="selectedProperty.status === 'active'"
+                    [class.wait]="selectedProperty.status === 'pending'"
+                    [class.bad]="selectedProperty.status === 'blocked'">
+                <span class="dot"></span>
+                {{ selectedProperty.status || '—' }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn btn-dark" (click)="viewPropertyDetails(selectedProperty.id)">
+            <i class="fas fa-eye"></i> View Details
+          </button>
+
+          <button class="btn btn-sand" (click)="downloadPropertyLedger(selectedProperty.id)">
+            <i class="fas fa-receipt"></i> Ledger
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="grid stats-grid" *ngIf="!isLoading">
+
+    <div class="card stat-card stat-a">
+      <div class="stat-top">
+        <div>
+          <div class="stat-label">Total Properties</div>
+          <div class="stat-value">{{ dashboardStats.totalProperties }}</div>
+          <div class="stat-sub">Managed under your account</div>
+        </div>
+        <div class="stat-icon"><i class="fas fa-building"></i></div>
+      </div>
+      <a routerLink="/properties" class="stat-link">
+        View All <i class="fas fa-arrow-right"></i>
+      </a>
+    </div>
+
+    <div class="card stat-card stat-b">
+      <div class="stat-top">
+        <div>
+          <div class="stat-label">Total Paid</div>
+          <div class="stat-value">{{ dashboardStats.totalPaid | currency:'PKR ' }}</div>
+          <div class="stat-sub">Confirmed & completed</div>
+        </div>
+        <div class="stat-icon"><i class="fas fa-money-check-alt"></i></div>
+      </div>
+    </div>
+
+    <div class="card stat-card stat-c">
+      <div class="stat-top">
+        <div>
+          <div class="stat-label">Total Due</div>
+          <div class="stat-value">{{ dashboardStats.totalDue | currency:'PKR ' }}</div>
+          <div class="stat-sub">Pending obligations</div>
+        </div>
+        <div class="stat-icon"><i class="fas fa-exclamation-triangle"></i></div>
+      </div>
+    </div>
+
+    <div class="card stat-card stat-d">
+      <div class="stat-top">
+        <div>
+          <div class="stat-label">Next Payment</div>
+          <div class="stat-value">{{ dashboardStats.nextPaymentAmount | currency:'PKR ' }}</div>
+          <div class="stat-sub">
+            Due: {{ dashboardStats.nextPaymentDate | date:'MMM dd, yyyy' }}
+          </div>
+        </div>
+        <div class="stat-icon"><i class="fas fa-calendar-alt"></i></div>
+      </div>
+
+      <button class="btn btn-light-mini" (click)="makePayment('next')">
+        Pay Now <i class="fas fa-arrow-right"></i>
+      </button>
+    </div>
+
+  </div>
+
+  <!-- Due Breakdown -->
+  <div class="card" *ngIf="!isLoading">
+    <div class="card-header header-row">
+      <div class="card-title"><i class="fas fa-list-ul"></i> Due Breakdown</div>
+      <span class="pill warn">Summary</span>
+    </div>
+
+    <div class="card-body">
+      <div class="kv-grid">
+        <div class="kv">
+          <div class="k">Installments Due</div>
+          <div class="v">{{ dueBreakdown.installments | currency:'PKR ' }}</div>
+        </div>
+        <div class="kv">
+          <div class="k">Development Charges</div>
+          <div class="v">{{ dueBreakdown.development | currency:'PKR ' }}</div>
+        </div>
+        <div class="kv">
+          <div class="k">Other Charges</div>
+          <div class="v">{{ dueBreakdown.other | currency:'PKR ' }}</div>
+        </div>
+        <div class="kv">
+          <div class="k">Surcharge / Fine</div>
+          <div class="v bad">{{ dueBreakdown.surcharge | currency:'PKR ' }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts -->
+  <div class="grid charts-grid" *ngIf="illustration ? false : !isLoading">
+    <div class="card">
+      <div class="card-header header-row">
+        <div class="card-title">
+          <i class="fas fa-chart-line"></i> Payment History
+        </div>
+        <span class="pill">Last 12 months</span>
+      </div>
+      <div class="card-body">
+        <div class="chart-frame">
+          <div class="chart-container">
+            <canvas baseChart [type]="'line'" [data]="paymentChartData" [options]="chartOptions"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header header-row">
+        <div class="card-title">
+          <i class="fas fa-chart-pie"></i> Property Status
+        </div>
+        <span class="pill warn">Overview</span>
+      </div>
+      <div class="card-body">
+        <div class="chart-frame">
+          <div class="chart-container">
+            <canvas baseChart [type]="'doughnut'" [data]="propertyChartData" [options]="chartOptions"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tables -->
+  <div class="grid tables-grid" *ngIf="!isLoading">
+
+    <!-- Recent Payments -->
+    <div class="card">
+      <div class="card-header header-row">
+        <div class="card-title">
+          <i class="fas fa-history"></i> Recent Payments
+        </div>
+        <span class="pill">{{ recentPayments.length }} payments</span>
+      </div>
+
+      <div class="card-body">
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Property</th>
+                <th>Amount</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr
+                *ngFor="let payment of recentPayments.slice(0, 5)"
+                (click)="viewPropertyDetails(payment.propertyId)"
+                class="clickable-row"
+              >
+                <td>
+                  <div class="cell-strong">
+                    {{ (payment.paidDate || payment.dueDate) | date:'MMM dd, yyyy' }}
+                  </div>
+                  <div class="cell-muted">Ref: {{ payment.id }}</div>
+                </td>
+
+                <td>
+                  <div class="cell-strong">{{ payment.propertyName }}</div>
+                  <div class="cell-muted">Tap for details</div>
+                </td>
+
+                <td class="good">
+                  {{ payment.amount | currency:'PKR ' }}
+                </td>
+
+                <td>
+                  <span class="status"
+                        [class.ok]="payment.status === 'completed'"
+                        [class.wait]="payment.status === 'pending'"
+                        [class.bad]="payment.status === 'failed'">
+                    <span class="dot"></span>
+                    {{ payment.status }}
+                  </span>
+                </td>
+              </tr>
+
+              <tr *ngIf="recentPayments.length === 0">
+                <td colspan="4" class="empty">No recent payments found</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Upcoming Dues -->
+    <div class="card">
+      <div class="card-header header-row">
+        <div class="card-title">
+          <i class="fas fa-calendar-check"></i> Upcoming Dues
+        </div>
+        <span class="pill warn">{{ upcomingPayments.length }} dues</span>
+      </div>
+
+      <div class="card-body">
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Due Date</th>
+                <th>Property</th>
+                <th>Amount</th>
+                <th class="th-right">Action</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr *ngFor="let payment of upcomingPayments.slice(0, 5)">
+                <td>
+                  <div class="cell-strong">
+                    <i class="fas fa-calendar-day"></i>
+                    {{ payment.dueDate | date:'MMM dd, yyyy' }}
+                  </div>
+                  <div class="cell-muted">Upcoming</div>
+                </td>
+
+                <td>
+                  <div class="cell-strong">{{ payment.propertyName }}</div>
+                  <div class="cell-muted">Due payment</div>
+                </td>
+
+                <td class="bad">
+                  {{ payment.amount | currency:'PKR ' }}
+                </td>
+
+                <td class="td-right">
+                  <button class="btn btn-primary small" (click)="makePayment(payment.id); $event.stopPropagation()">
+                    <i class="fas fa-money-bill-wave"></i> Pay
+                  </button>
+                </td>
+              </tr>
+
+              <tr *ngIf="upcomingPayments.length === 0">
+                <td colspan="4" class="empty">No upcoming dues</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Installment Plan -->
+  <div class="card" *ngIf="!isLoading">
+    <div class="card-header header-row">
+      <div class="card-title"><i class="fas fa-stream"></i> Installment Plan</div>
+      <span class="pill">Schedule</span>
+    </div>
+
+    <div class="card-body">
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Due Date</th>
+              <th>Amount</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr *ngFor="let ins of installmentPlan.slice(0,10); let i=index">
+              <td>{{ i+1 }}</td>
+              <td>{{ ins.dueDate | date:'MMM dd, yyyy' }}</td>
+              <td>{{ ins.amount | currency:'PKR ' }}</td>
+              <td>
+                <span class="status"
+                      [class.ok]="ins.status==='paid'"
+                      [class.wait]="ins.status==='due'"
+                      [class.bad]="ins.status==='overdue'">
+                  <span class="dot"></span>
+                  {{ ins.status }}
+                </span>
+              </td>
+            </tr>
+
+            <tr *ngIf="installmentPlan.length===0">
+              <td colspan="4" class="empty">No installment plan found</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-dark" routerLink="/installments">
+          View Full Plan <i class="fas fa-arrow-right"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Latest Notifications -->
+  <div class="card" *ngIf="!isLoading">
+    <div class="card-header header-row">
+      <div class="card-title"><i class="fas fa-bell"></i> Latest Notifications</div>
+      <a routerLink="/notifications" class="stat-link">
+        View All <i class="fas fa-arrow-right"></i>
+      </a>
+    </div>
+
+    <div class="card-body">
+      <div class="notif-list">
+        <div class="notif" *ngFor="let n of notifications.slice(0,5)">
+          <div class="notif-title">{{ n.title }}</div>
+          <div class="notif-meta">
+            <i class="fas fa-clock"></i> {{ n.date | date:'MMM dd, yyyy' }}
+            <span class="chip" *ngIf="n.type">{{ n.type }}</span>
+          </div>
+        </div>
+
+        <div class="empty" *ngIf="notifications.length===0">
+          No notifications
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="card" *ngIf="!isLoading">
+    <div class="card-header header-row">
+      <div class="card-title"><i class="fas fa-bolt"></i> Quick Actions</div>
+      <span class="pill">Shortcuts</span>
+    </div>
+
+    <div class="card-body">
+      <div class="grid actions-grid">
+        <button class="action-card" routerLink="/make-payment">
+          <div class="action-icon"><i class="fas fa-credit-card"></i></div>
+          <div class="action-text">
+            <div class="action-title">Make Payment</div>
+            <div class="action-sub">Pay dues instantly</div>
+          </div>
+        </button>
+
+        <button class="action-card" routerLink="/documents">
+          <div class="action-icon"><i class="fas fa-file-contract"></i></div>
+          <div class="action-text">
+            <div class="action-title">Documents</div>
+            <div class="action-sub">View & download</div>
+          </div>
+        </button>
+
+        <button class="action-card" routerLink="/reports">
+          <div class="action-icon"><i class="fas fa-chart-bar"></i></div>
+          <div class="action-text">
+            <div class="action-title">Reports</div>
+            <div class="action-sub">Generate summary</div>
+          </div>
+        </button>
+
+        <button class="action-card" routerLink="/notifications">
+          <div class="action-icon"><i class="fas fa-bell"></i></div>
+          <div class="action-text">
+            <div class="action-title">
+              Notifications
+              <span *ngIf="hasNotifications" class="notification-badge">!</span>
+            </div>
+            <div class="action-sub">Updates & alerts</div>
+          </div>
+        </button>
+
+        <button class="action-card" routerLink="/support">
+          <div class="action-icon"><i class="fas fa-headset"></i></div>
+          <div class="action-text">
+            <div class="action-title">Support</div>
+            <div class="action-sub">Create ticket / complaint</div>
+          </div>
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>

@@ -59,6 +59,8 @@ export class AuthService {
     localStorage.removeItem('token');
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
+    localStorage.removeItem('role');
+
     this.userSubject.next(null);
   }
 
@@ -68,6 +70,12 @@ export class AuthService {
         ?? this.readStoredState()?.token
         ?? null;
   }
+
+  getRole(): UserRole | null {
+  const r = (localStorage.getItem('role') || '').toLowerCase();
+  return (r === 'admin' || r === 'user' || r === 'account') ? (r as UserRole) : null;
+}
+
 
   // ---------- LOGIN (mock - keep if needed) ----------
   loginMock(req: { email: string; password: string }): Observable<AuthUser> {

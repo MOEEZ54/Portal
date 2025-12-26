@@ -59,7 +59,7 @@ export class OtpComponent implements OnInit {
         this.successMsg = 'Email verified successfully!';
         localStorage.removeItem('otp_email');
 
-        setTimeout(() => this.router.navigate(['/login']), 800);
+        setTimeout(() => this.router.navigate(['/portal/user-dashboard']), 500);
       },
       error: (err) => {
         this.isSubmitting = false;
